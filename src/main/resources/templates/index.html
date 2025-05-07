@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Colorful Blog</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom CSS for the message box */
+        #message-box {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #f0fdf4;
+            color: #15803d;
+            padding: 16px;
+            border-radius: 6px;
+            border: 1px solid #16a34a;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+        #message-box.show {
+            display: block;
+        }
+        .blog-card {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            position: relative; /* Make sure the icons are positioned relative to the card */
+        }
+
+        .blog-card:hover {
+            transform: translateY(-0.25rem);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .blog-card .actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 8px; /* Space between icons */
+        }
+
+        .blog-card .actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            display: flex; /* Use flexbox for centering the icon */
+            align-items: center;
+            justify-content: center;
+        }
+
+        .blog-card .actions button svg {
+            width: 20px; /* Icon size */
+            height: 20px;
+            color: #888; /* Default icon color */
+            transition: color 0.2s ease; /* Smooth transition */
+        }
+
+        .blog-card .actions button:hover svg {
+            color: #e67e22; /* Change color on hover (orange) */
+        }
+
+        .blog-card .actions button:focus {
+            outline: none; /* Remove default outline */
+            box-shadow: 0 0 0 2px rgba(230, 126, 34, 0.5); /* Add a focus shadow */
+        }
+
+    </style>
+</head>
+<body class="bg-gray-100 font-inter">
+<div id="message-box" class="hidden"></div>
+<header class="bg-orange-500 text-white py-4">
+    <div class="container mx-auto px-4">
+        <h1 class="text-3xl font-semibold text-center">Welcome to Your Blog</h1>
+    </div>
+</header>
+
+<main class="container mx-auto py-8 px-4">
+    <div id="login-register-container" class="bg-white rounded-lg shadow-md p-8 w-full max-w-md mx-auto mb-8">
+        <h1 class="text-2xl font-semibold mb-6 text-gray-800 text-center">Login / Register</h1>
+        <div id="login-form" class="space-y-4">
+            <div>
+                <label for="login-username" class="block text-gray-700 text-sm font-bold mb-2">Username:</label>
+                <input type="text" id="login-username" name="username" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                <div id="login-username-error" class="text-red-500 text-xs italic" style="display: none;"></div>
+            </div>
+            <div>
+                <label for="login-password" class="block text-gray-700 text-sm font-bold mb-2">Password:</label>
+                <input type="password" id="login-password" name="password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                <div id="login-password-error" class="text-red-500 text-xs italic" style="display: none;"></div>
+            </div>
+            <button id="login-button" class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full">
+                Login
+            </button>
+            <div class="text-center">
+                <button id="switch-to-register" class="text-blue-500 hover:underline focus:outline-none">
+                    Don't have an account? Register
+                </button>
+            </div>
+        </div>
+        <div id="register-form" class="space-y-4" style="display: none;">
+            <div>
+                <label for="register-username" class="block text-gray-700 text-sm font-bold mb-2">Username:</label>
+                <input type="text" id="register-username" name="username" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                <div id="register-username-error" class="text-red-500 text-xs italic" style="display: none;"></div>
+            </div>
+            <div>
+                <label for="register-password" class="block text-gray-700 text-sm font-bold mb-2">Password:</label>
+                <input type="password" id="register-password" name="password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                <div id="register-password-error" class="text-red-500 text-xs italic" style="display: none;"></div>
+            </div>
+            <button id="register-button" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full">
+                Create Account
+            </button>
+            <div class="text-center">
+                <button id="switch-to-login" class="text-blue-500 hover:underline focus:outline-none">
+                    Already have an account? Login
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="blog-container" class="bg-white rounded-lg shadow-md p-6 w-full" style="display: none;">
+        <div class = "flex justify-between items-center mb-4">
+            <h1 class="text-3xl font-semibold  text-gray-800 ">Your Blog Posts</h1>
+            <button id="logout-button" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                Logout
+            </button>
+        </div>
+
+        <div id="new-blog-form" class="space-y-4 mb-6 p-6 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-700 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" x2="8" y1="13" y2="13"></line><line x1="16" x2="8" y1="17" y2="17"></line></svg>
+                Create New Blog Post
+            </h2>
+            <div>
+                <label for="blog-title" class="block text-gray-700 text-sm font-bold mb-2">Title:</label>
+                <input type="text" id="blog-title" name="title" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                <div id="blog-title-error" class="text-red-500 text-xs italic" style="display: none;"></div>
+            </div>
+            <div>
+                <label for="blog-content" class="block text-gray-700 text-sm font-bold mb-2">Content:</label>
+                <textarea id="blog-content" name="content" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-32 resize-y" required></textarea>
+                <div id="blog-content-error" class="text-red-500 text-xs italic" style="display: none;"></div>
+            </div>
+            <button id="create-blog-button" class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                Publish Post
+            </button>
+        </div>
+        <div id="blog-posts" class="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        </div>
+    </div>
+</main>
+
+<script>
+    const API_BASE_URL = 'http://localhost:8080/api';
+    const AUTH_API_BASE_URL = 'http://localhost:8080/auth';
+    const messageBox = document.getElementById('message-box');
+    const loginRegisterContainer = document.getElementById('login-register-container');
+    const blogContainer = document.getElementById('blog-container');
+    const blogPostsContainer = document.getElementById('blog-posts');
+    const newBlogForm = document.getElementById('new-blog-form');
+
+    let currentUser = null; // Store logged-in user info
+
+    function showMessage(message, type = 'success') {
+        messageBox.textContent = message;
+        messageBox.className = `fixed top-4 left-1/2 transform -translate-x-1/2 bg-${type === 'success' ? 'green' : 'red'}-100 text-${type === 'success' ? 'green' : 'red'}-700 border border-${type === 'success' ? 'green' : 'red'}-400 px-4 py-2 rounded shadow-md`;
+        messageBox.classList.add('show');
+        setTimeout(() => {
+            messageBox.classList.remove('show');
+        }, 3000);
+    }
+
+    function validateForm(formId) {
+        const form = document.getElementById(formId);
+        let isValid = true;
+        const inputs = form.querySelectorAll('input, textarea');
+        inputs.forEach(input => {
+            const errorId = `${input.id}-error`;
+            const errorElement = document.getElementById(errorId);
+            if (!input.value.trim()) {
+                errorElement.textContent = `${input.name.charAt(0).toUpperCase() + input.name.slice(1)} is required`;
+                errorElement.style.display = 'block';
+                isValid = false;
+            } else {
+                errorElement.style.display = 'none';
+            }
+        });
+        return isValid;
+    }
+
+    async function registerUser(event) {
+        event.preventDefault();
+        if (!validateForm('register-form')) {
+            return;
+        }
+
+        const usernameInput = document.getElementById('register-username');
+        const passwordInput = document.getElementById('register-password');
+        const username = usernameInput.value;
+        const password = passwordInput.value;
+
+        try {
+            const response = await fetch(`${AUTH_API_BASE_URL}/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Registration failed');
+            }
+            showMessage('Registration successful! Please login.', 'success');
+            document.getElementById('switch-to-login').click();
+            clearForm('register-form');
+
+        } catch (error) {
+            showMessage(`Error: ${error.message}`, 'error');
+        }
+    }
+
+    async function loginUser(event) {
+        event.preventDefault();
+        if (!validateForm('login-form')) {
+            return;
+        }
+
+        const usernameInput = document.getElementById('login-username');
+        const passwordInput = document.getElementById('login-password');
+        const username = usernameInput.value;
+        const password = passwordInput.value;
+
+        try {
+            const response = await fetch(`${AUTH_API_BASE_URL}/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Login failed');
+            }
+            const data = await response.json();
+            localStorage.setItem('user', JSON.stringify({ username: username, token: data.token }));
+            showMessage('Login successful!', 'success');
+            currentUser = { username, token: data.token };
+            showBlogPage();
+
+        } catch (error) {
+            showMessage(`Error: ${error.message}`, 'error');
+        }
+    }
+
+    function clearForm(formId) {
+        const form = document.getElementById(formId);
+        const inputs = form.querySelectorAll('input, textarea');
+        inputs.forEach(input => {
+            input.value = '';
+            const errorId = `${input.id}-error`;
+            const errorElement = document.getElementById(errorId);
+            if (errorElement) {
+                errorElement.style.display = 'none';
+            }
+        });
+    }
+
+    document.getElementById('switch-to-register').addEventListener('click', () => {
+        document.getElementById('login-form').style.display = 'none';
+        document.getElementById('register-form').style.display = 'block';
+    });
+
+    document.getElementById('switch-to-login').addEventListener('click', () => {
+        document.getElementById('login-form').style.display = 'block';
+        document.getElementById('register-form').style.display = 'none';
+    });
+
+    document.getElementById('login-button').addEventListener('click', loginUser);
+    document.getElementById('register-button').addEventListener('click', registerUser);
+
+    function showBlogPage() {
+        loginRegisterContainer.style.display = 'none';
+        blogContainer.style.display = 'block';
+        if (currentUser) {
+            newBlogForm.style.display = 'block';
+        } else {
+            newBlogForm.style.display = 'none';
+        }
+        loadBlogPosts();
+    }
+
+
+
+    async function createBlogPost(event) {
+        event.preventDefault();
+        if (!validateForm('new-blog-form')) {
+            return;
+        }
+
+        const titleInput = document.getElementById('blog-title');
+        const contentInput = document.getElementById('blog-content');
+        const title = titleInput.value;
+        const content = contentInput.value;
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/blogs`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${currentUser.token}`
+                },
+                body: JSON.stringify({ title, content })
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to create blog post');
+            }
+            showMessage('Blog post created successfully!', 'success');
+            clearForm('new-blog-form');
+            loadBlogPosts();
+        } catch (error) {
+            showMessage(`Error: ${error.message}`, 'error');
+        }
+    }
+
+    async function loadBlogPosts() {
+        blogPostsContainer.innerHTML = '';
+        try {
+            const response = await fetch(`${API_BASE_URL}/blogs`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${currentUser.token}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error('Failed to load blog posts');
+            }
+            const posts = await response.json();
+
+            posts.forEach(post => {
+                const postElement = document.createElement('div');
+                postElement.classList.add('blog-card');
+                postElement.innerHTML = `
+                    <h2 class="text-xl font-semibold text-gray-800 mb-2">${post.title}</h2>
+                    <p class="text-gray-600 mb-2">By: <span class="font-semibold text-orange-500">${post.author}</span></p>
+                    <p class="text-gray-700 mb-4">${post.content}</p>
+                    <p class="text-gray-500 text-sm">Created At: ${new Date(post.createdAt).toLocaleString()}</p>
+                     <div class="actions">
+                        <button data-blog-id="${post.id}" class="edit-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil-line"><path d="M9 13h-3a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h3"></path><path d="M15 5 8 12"></path><path d="M15 5 19 9"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                        </button>
+                        <button data-blog-id="${post.id}" class="delete-button">
+                           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>
+                        </button>
+                    </div>
+                `;
+                blogPostsContainer.insertAdjacentHTML('beforeend', postElement.outerHTML);
+            });
+
+
+        } catch (error) {
+            showMessage(`Error: ${error.message}`, 'error');
+        }
+    }
+
+
+
+    document.getElementById('create-blog-button').addEventListener('click', createBlogPost);
+
+    // Logout functionality
+    document.getElementById('logout-button').addEventListener('click', () => {
+        localStorage.removeItem('user'); // Clear user data
+        currentUser = null;
+        blogPostsContainer.innerHTML = ''; // Clear blog posts
+        blogContainer.style.display = 'none'; // Hide blog container
+        loginRegisterContainer.style.display = 'block'; // Show login/register
+        showMessage('Logged out successfully!', 'success');
+    });
+
+    // Check for existing login on page load
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+        currentUser = JSON.parse(storedUser);
+        showBlogPage();
+    }
+
+    // Event delegation for dynamically added buttons
+    blogPostsContainer.addEventListener('click', async (event) => {
+        const target = event.target;
+        if (target.classList.contains('edit-button')) {
+            const blogId = target.dataset.blogId;
+            handleEditBlog(blogId);
+        } else if (target.classList.contains('delete-button')) {
+            const blogId = target.dataset.blogId;
+            handleDeleteBlog(blogId);
+        }
+    });
+
+    async function handleEditBlog(blogId) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/blogs/${blogId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${currentUser.token}`
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Failed to retrieve blog for editing");
+            }
+            const blogData = await response.json();
+
+            // Populate the new blog form with the data for editing
+            document.getElementById('blog-title').value = blogData.title;
+            document.getElementById('blog-content').value = blogData.content;
+
+            // Change the form title and button
+            const formTitle = document.getElementById('new-blog-form').querySelector('h2');
+            formTitle.textContent = 'Edit Blog Post';
+            const createButton = document.getElementById('create-blog-button');
+            createButton.textContent = 'Update Post';
+            // Remove the old event listener, if any
+            createButton.removeEventListener('click', createBlogPost);
+            // Add the new event listener for editing
+            createButton.addEventListener('click', (event) => handleUpdateBlog(event, blogId));
+
+
+        } catch (error) {
+            showMessage(`Error: ${error.message}`, 'error');
+        }
+    }
+
+    async function handleUpdateBlog(event, blogId) {
+        event.preventDefault();
+
+        if (!validateForm('new-blog-form')) {
+            return;
+        }
+
+        const titleInput = document.getElementById('blog-title');
+        const contentInput = document.getElementById('blog-content');
+        const title = titleInput.value;
+        const content = contentInput.value;
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/blogs/${blogId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${currentUser.token}`
+                },
+                body: JSON.stringify({ title, content })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Failed to update blog post");
+            }
+            showMessage('Blog post updated successfully!', 'success');
+
+            // Reset the form
+            const formTitle = document.getElementById('new-blog-form').querySelector('h2');
+            formTitle.textContent = 'Create New Blog Post';
+            const createButton = document.getElementById('create-blog-button');
+            createButton.textContent = 'Publish Post';
+            createButton.removeEventListener('click', handleUpdateBlog);
+            createButton.addEventListener('click', createBlogPost);
+            clearForm('new-blog-form');
+            loadBlogPosts();
+
+        } catch (error) {
+            showMessage(`Error: ${error.message}`, 'error');
+        }
+    }
+
+    async function handleDeleteBlog(blogId) {
+        if (confirm("Are you sure you want to delete this blog post?")) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/blogs/${blogId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${currentUser.token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failedto delete blog post');
+                }
+                showMessage('Blog post deleted successfully!', 'success');
+                loadBlogPosts();
+            } catch (error) {
+                showMessage(`Error: ${error.message}`, 'error');
+            }
+        }
+    }
+</script>
+
+</body>
+</html>

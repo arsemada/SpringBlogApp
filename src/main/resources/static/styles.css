@@ -1,0 +1,31 @@
+#message-box {
+    display: none;
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #f0fdf4;
+    color: #15803d;
+    padding: 16px;
+    border-radius: 6px;
+    border: 1px solid #16a34a;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+
+#message-box.show {
+    display: block;
+}
+
+.blog-card {
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    padding: 1.5rem;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.blog-card:hover {
+    transform: translateY(-0.25rem);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
