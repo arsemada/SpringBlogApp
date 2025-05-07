@@ -6,3 +6,7 @@ This application provides user authentication and basic blog management function
 Features
 - User authentication (registration/login) with JWT.
 - Basic blog management (create, read, update, delete).
+
+Technologies
+- Spring Boot, Spring Security, Spring Data JPA
+- PostgreSQL, JWT, Maven, Lombok
